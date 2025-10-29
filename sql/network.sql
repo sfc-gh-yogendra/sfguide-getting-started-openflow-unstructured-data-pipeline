@@ -13,8 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-use role kamesh_demos;
-use database kamesh_demos;
+USE ROLE FESTIVAL_DEMO_ROLE;
+USE DATABASE OPENFLOW_FESTIVAL_DEMO;
+CREATE SCHEMA IF NOT EXISTS networks;
 use schema networks;
 show network rules;
 
@@ -29,28 +30,23 @@ CREATE OR REPLACE NETWORK RULE google_network_rule
                 );
 
 DESC NETWORK RULE google_network_rule;
+USE ROLE ACCOUNTADMIN;
 
-CREATE OR REPLACE NETWORK RULE kameshs_dev_network_rule
-  MODE = EGRESS
-  TYPE= HOST_PORT
-  VALUE_LIST = ('kameshs.dev');
 
-DESC NETWORK RULE kameshs_dev_network_rule;
+CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION festival_ops_access_integration
+  ALLOWED_NETWORK_RULES = (OPENFLOW_FESTIVAL_DEMO.networks.google_network_rule)
+  ENABLED = true
+  COMMENT =  'Used for accessing google workspace';
+  
 
-CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION kamesh_openflow_demos_access_integration
-  ALLOWED_NETWORK_RULES = (kamesh_demos.networks.google_network_rule,kamesh_demos.networks.kameshs_dev_network_rule)
-  ENABLED = true;
-
-ALTER EXTERNAL ACCESS INTEGRATION kamesh_openflow_demos_access_integration SET COMMENT = 'Used when creating runtimes with Openflow SPCS ';
-
-DESC EXTERNAL ACCESS INTEGRATION kamesh_openflow_demos_access_integration;
+DESC EXTERNAL ACCESS INTEGRATION festival_ops_access_integration;
 
 -- access and grants
 
-GRANT USAGE ON DATABASE KAMESH_DEMOS TO OPENFLOW_ADMIN;
-GRANT USAGE ON SCHEMA KAMESH_DEMOS.NETWORKS TO OPENFLOW_ADMIN;
-GRANT USAGE ON INTEGRATION kamesh_openflow_demos_access_integration TO OPENFLOW_ADMIN;
+GRANT USAGE ON DATABASE OPENFLOW_FESTIVAL_DEMO TO OPENFLOWADMIN;
+GRANT USAGE ON SCHEMA OPENFLOW_FESTIVAL_DEMO.NETWORKS TO OPENFLOWADMIN;
+GRANT USAGE ON INTEGRATION festival_ops_access_integration TO OPENFLOWADMIN;
 
 -- check grants
-SHOW GRANTS TO ROLE openflow_admin;
+SHOW GRANTS TO ROLE OPENFLOWADMIN;
   
